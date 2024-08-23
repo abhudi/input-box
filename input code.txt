@@ -1,0 +1,62 @@
+import React, { useState } from 'react';
+import { AutoComplete } from 'primereact/autocomplete';
+import 'primereact/resources/themes/saga-blue/theme.css';
+import 'primereact/resources/primereact.min.css';
+import 'primeicons/primeicons.css';
+
+const AutoCompleteComponent: React.FC = () => {
+  const [selectedAutoValue, setSelectedAutoValue] = useState<any[]>([]);
+  const [autoFilteredValue, setAutoFilteredValue] = useState<any[]>([]);
+  const [autoCompleteItems, setAutoCompleteItems] = useState([
+    { name: 'Apple' },
+    { name: 'Banana' },
+    { name: 'Cherry' },
+  ]);
+
+  const searchCountry = (event: { query: string }) => {
+    const query = event.query.toLowerCase();
+    const filteredItems = autoCompleteItems.filter((item) =>
+      item.name.toLowerCase().startsWith(query)
+    );
+    const suggestions = [...filteredItems];
+
+    // If no matching item is found, show an "Add" option
+    if (query && filteredItems.length === 0) {
+      suggestions.push({ name: `Add "${event.query}"` });
+    }
+
+    setAutoFilteredValue(suggestions);
+  };
+
+  const handleChange = (e: any) => {
+    const selectedItem = e.value[e.value.length - 1];
+
+    if (selectedItem.name.startsWith('Add "')) {
+      const newItemName = selectedItem.name.replace('Add "', '').replace('"', '');
+      const newItem = { name: newItemName };
+
+      setAutoCompleteItems((prevItems) => [...prevItems, newItem]);
+      setSelectedAutoValue((prevSelected) => [...prevSelected, newItem]);
+    } else {
+      setSelectedAutoValue(e.value);
+    }
+  };
+
+  return (
+    <div>
+      <AutoComplete
+        placeholder="Search"
+        id="dd"
+        dropdown
+        multiple
+        value={selectedAutoValue}
+        onChange={handleChange}
+        suggestions={autoFilteredValue}
+        completeMethod={searchCountry}
+        field="name"
+      />
+    </div>
+  );
+};
+
+export default AutoCompleteComponent;
